@@ -9,7 +9,10 @@ namespace AFI_CustomerRegistration.API.Models
 {
     public class CustomerDetailContext : DbContext
     {
+        public CustomerDetailContext(DbContextOptions<CustomerDetailContext> options) : base(options)
+        {
 
+        }
 
         public DbSet<CustomerDetail> CustomerDetails { get; set; }
     }
