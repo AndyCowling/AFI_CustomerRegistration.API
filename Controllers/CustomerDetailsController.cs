@@ -115,6 +115,7 @@ namespace AFI_CustomerRegistration.API.Controllers
                 }
 
                 // email has .co.uk or .com?
+                // TODO more validation required here
                 if (customerDetail.Email != "")
                 {
                     if (!customerDetail.Email.Contains(".co.uk") && !customerDetail.Email.Contains(".com")) { bln = true; }
