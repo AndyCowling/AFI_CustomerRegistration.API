@@ -98,30 +98,38 @@ namespace AFI_CustomerRegistration.API.Controllers
              */
             Boolean bln = false;
 
-            // if both empty then not valid
-            if (customerDetail.DOB == "" && customerDetail.Email == "") { bln = true; }
+            if (customerDetail.Email is null && customerDetail.DOB is null) { return ValidationProblem(); }
 
-            // are they over 18?
-            if (customerDetail.DOB != "")
-            {
-                if (DateTime.Parse(customerDetail.DOB) > DateTime.Now.AddYears(-18)) { bln = true; } // too young
-            }
+            else {
+                // now if null then set to empty string
+                if (customerDetail.Email is null) customerDetail.Email = "";
+                if (customerDetail.DOB is null) customerDetail.DOB = "";
 
-            // email has .co.uk or .com?
-            if (customerDetail.Email != "")
-            {
-                if (!customerDetail.Email.Contains(".co.uk") && !customerDetail.Email.Contains(".com")) { bln = true; }
-                else if (customerDetail.Email.Length > 6) { 
-                    if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 6, 6) != ".co.uk" && customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
-                } else if (customerDetail.Email.Length > 4)
+                // if both empty then not valid
+                if (customerDetail.DOB == "" && customerDetail.Email == "") { return ValidationProblem(); }
+
+                // are they over 18?
+                if (customerDetail.DOB != "" && !(customerDetail.DOB is null))
                 {
-                    if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
+                    if (DateTime.Parse(customerDetail.DOB) > DateTime.Now.AddYears(-18)) { bln = true; } // too young
                 }
-            }
 
-            if (bln)
-            {
-                return ValidationProblem(); // TODO - possibly could give more feedback here..?
+                // email has .co.uk or .com?
+                if (customerDetail.Email != "")
+                {
+                    if (!customerDetail.Email.Contains(".co.uk") && !customerDetail.Email.Contains(".com")) { bln = true; }
+                    else if (customerDetail.Email.Length > 6) { 
+                        if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 6, 6) != ".co.uk" && customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
+                    } else if (customerDetail.Email.Length > 4)
+                    {
+                        if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
+                    }
+                }
+
+                if (bln)
+                {
+                    return ValidationProblem(); // TODO - possibly could give more feedback here..?
+                }
             }
 
             CustomerID customerID = new CustomerID(); // generate a new instance of customerID model to hold the return value in 
@@ -135,7 +143,11 @@ namespace AFI_CustomerRegistration.API.Controllers
                     cmd.Parameters.Add(new SqlParameter("@fname", customerDetail.FirstName));
                     cmd.Parameters.Add(new SqlParameter("@sname", customerDetail.Surname));
                     cmd.Parameters.Add(new SqlParameter("@reference", customerDetail.ReferenceNumber));
-                    cmd.Parameters.Add(new SqlParameter("@dob", DateTime.Parse(customerDetail.DOB)));
+                    DateTime newDate;
+                    if (DateTime.TryParse(customerDetail.DOB,out newDate))
+                        { 
+                            cmd.Parameters.Add(new SqlParameter("@dob", DateTime.Parse(customerDetail.DOB)));
+                        }
                     cmd.Parameters.Add(new SqlParameter("@email", customerDetail.Email));
                     
                     await sql.OpenAsync();
