@@ -17,8 +17,8 @@ namespace AFI_CustomerRegistration.API.Controllers
     {
         private readonly CustomerDetailContext _context;
 
-        // TODO - need to figure out how to use the DBContext properly so that the settings come from the json file
-        private readonly string _conString = "Server=tcp:webapplication220200311095927dbserver.database.windows.net,1433;Initial Catalog=WebApplication220200311095927_db;Persist Security Info=False;User ID=AFI_Customer;Password=^9o3Wq34SLDpR7D;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+        
+        private string _conString = "";
 
         public CustomerDetailsController(CustomerDetailContext context)
         {
@@ -137,7 +137,7 @@ namespace AFI_CustomerRegistration.API.Controllers
             }
 
             CustomerID customerID = new CustomerID(); // generate a new instance of customerID model to hold the return value in 
-
+            _conString = _context.Database.GetDbConnection().ConnectionString;
             try { // TODO - could use finer detail error trapping here - for example one for the db connection; one for the execute of the SQL .. 
             using (SqlConnection sql = new SqlConnection(_conString)) // connect to database
             {
