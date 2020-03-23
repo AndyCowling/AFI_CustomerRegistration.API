@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AFI_CustomerRegistration.API.Models;
+using Microsoft.Data.SqlClient;
 
 namespace AFI_CustomerRegistration.API.Controllers
 {
@@ -14,6 +15,9 @@ namespace AFI_CustomerRegistration.API.Controllers
     public class CustomerDetailsController : ControllerBase
     {
         private readonly CustomerDetailContext _context;
+
+        // TODO - need to figure out how to use the DBContext properly so that the settings come from the json file
+        private readonly string _conString = "Server=tcp:webapplication220200311095927dbserver.database.windows.net,1433;Initial Catalog=WebApplication220200311095927_db;Persist Security Info=False;User ID=AFI_Customer;Password=^9o3Wq34SLDpR7D;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
 
         public CustomerDetailsController(CustomerDetailContext context)
         {
@@ -84,12 +88,84 @@ namespace AFI_CustomerRegistration.API.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<CustomerDetail>> PostCustomerDetail(CustomerDetail customerDetail)
+        public async Task<ActionResult<CustomerID>> PostCustomerDetail(CustomerDetail customerDetail)
         {
-            _context.CustomerDetails.Add(customerDetail);
-            await _context.SaveChangesAsync();
+            /*
+             * will need to do some validation here
+             * are they over 18?
+             * is there an email or a DOB (need at least one)
+             * 
+             */
+            Boolean bln = false;
 
-            return CreatedAtAction("GetCustomerDetail", new { id = customerDetail.CustomerID }, customerDetail);
+            // if both empty then not valid
+            if (customerDetail.DOB == "" && customerDetail.Email == "") { bln = true; }
+
+            // are they over 18?
+            if (customerDetail.DOB != "")
+            {
+                if (DateTime.Parse(customerDetail.DOB) > DateTime.Now.AddYears(-18)) { bln = true; } // too young
+            }
+
+            // email has .co.uk or .com?
+            if (customerDetail.Email != "")
+            {
+                if (!customerDetail.Email.Contains(".co.uk") && !customerDetail.Email.Contains(".com")) { bln = true; }
+                if (customerDetail.Email.Length > 6) { 
+                    if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 6, 6) != ".co.uk" && customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
+                }
+                // TODO - review this logic as it's not quite right - leave commented for now
+                /*
+                if (customerDetail.Email.Length > 4 )
+                {
+                    if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
+                }
+                */
+            }
+
+            if (bln)
+            {
+                return ValidationProblem(); // TODO - possibly could give more feedback here..?
+            }
+
+            CustomerID customerID = new CustomerID(); // generate a new instance of customerID model to hold the return value in 
+
+            try { // TODO - could use finer detail error trapping here - for example one for the db connection; one for the execute of the SQL .. 
+            using (SqlConnection sql = new SqlConnection(_conString)) // connect to database
+            {
+                using (SqlCommand cmd = new SqlCommand("Create_New_AFI_Customer", sql))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@fname", customerDetail.FirstName));
+                    cmd.Parameters.Add(new SqlParameter("@sname", customerDetail.Surname));
+                    cmd.Parameters.Add(new SqlParameter("@reference", customerDetail.ReferenceNumber));
+                    cmd.Parameters.Add(new SqlParameter("@dob", DateTime.Parse(customerDetail.DOB)));
+                    cmd.Parameters.Add(new SqlParameter("@email", customerDetail.Email));
+                    
+                    await sql.OpenAsync();
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            customerID.ID = Int32.Parse(reader["Customer_ID"].ToString());
+                        }
+                    }
+
+                    return customerID;
+                }
+            }
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("There was a problem sending to the database" + ex.Message);
+
+            }
+
+            //_context.CustomerDetails.Add(customerDetail);
+            //await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetCustomerDetail", new { id = customerDetail.CustomerID }, customerDetail);
         }
 
         // DELETE: api/CustomerDetails/5

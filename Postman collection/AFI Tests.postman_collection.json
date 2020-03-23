@@ -1,0 +1,39 @@
+{
+	"info": {
+		"_postman_id": "a347a086-6cf6-4377-aec4-7799ac390242",
+		"name": "AFI Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "AFI Customer details",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"FirstName\":\"Joshua\",\"Surname\":\"Cowling\",\"ReferenceNumber\":\"XX-123456\",\"DOB\":\"20/03/2002\",\"Email\":\"Andy.Cowling@outlook.co.uk\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:57451/api/CustomerDetails",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "57451",
+					"path": [
+						"api",
+						"CustomerDetails"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

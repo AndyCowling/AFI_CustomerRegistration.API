@@ -72,10 +72,11 @@ namespace AFI_CustomerRegistration.API.Models
         *   then an @
         *   then >1 alphanumerics
         *   needs to end in either .co.uk or .com
-        *   TODO regular expression for email
+        *   TODO - regular expression isn't working quite as expected - will validate in code! Would want to explore this in more detail before releasing
         * ========================================================================================
         */
         [EmailAddress]
+        //[RegularExpression(@"^([A-Za-z0-9]{4,}@[A-Za-z0-9]{2,}.*?\.co.uk|[A-Za-z0-9]{4,}@[A-Za-z0-9]{2,}.*?\.com)$", ErrorMessage = "Please enter a valid email address ending in .com or .co.uk")]
         public string Email { get; set; }
     }
 }
