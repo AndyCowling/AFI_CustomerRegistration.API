@@ -127,7 +127,7 @@ namespace AFI_CustomerRegistration.API.Controllers
                     }
                     Regex rg = new Regex(@"^([A-Za-z0-9]{4,}@[A-Za-z0-9]{2,}.*?\.co.uk|[A-Za-z0-9]{4,}@[A-Za-z0-9]{2,}.*?\.com)$");
                     var match = rg.Match(customerDetail.Email);
-                    bln = !match.Success;
+                    if (!match.Success) { bln = true; }
                 }
 
                 if (bln)
