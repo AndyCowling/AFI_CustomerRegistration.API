@@ -111,16 +111,12 @@ namespace AFI_CustomerRegistration.API.Controllers
             if (customerDetail.Email != "")
             {
                 if (!customerDetail.Email.Contains(".co.uk") && !customerDetail.Email.Contains(".com")) { bln = true; }
-                if (customerDetail.Email.Length > 6) { 
+                else if (customerDetail.Email.Length > 6) { 
                     if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 6, 6) != ".co.uk" && customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
-                }
-                // TODO - review this logic as it's not quite right - leave commented for now
-                /*
-                if (customerDetail.Email.Length > 4 )
+                } else if (customerDetail.Email.Length > 4)
                 {
                     if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
                 }
-                */
             }
 
             if (bln)
