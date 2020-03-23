@@ -58,7 +58,6 @@ namespace AFI_CustomerRegistration.API.Models
         * Date of Birth
         * validation rules
         *   just a date - will have to do over 18 validation later on
-        *   TODO - check the over 18 validation
         * ========================================================================================
         */
         [DataType(DataType.Date)]

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AFI_CustomerRegistration.API.Models;
 using Microsoft.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace AFI_CustomerRegistration.API.Controllers
 {
@@ -115,7 +116,6 @@ namespace AFI_CustomerRegistration.API.Controllers
                 }
 
                 // email has .co.uk or .com?
-                // TODO more validation required here
                 if (customerDetail.Email != "")
                 {
                     if (!customerDetail.Email.Contains(".co.uk") && !customerDetail.Email.Contains(".com")) { bln = true; }
@@ -125,6 +125,9 @@ namespace AFI_CustomerRegistration.API.Controllers
                     {
                         if (customerDetail.Email.ToString().Substring(customerDetail.Email.Length - 4, 4) != ".com") { bln = true; }
                     }
+                    Regex rg = new Regex(@"^([A-Za-z0-9]{4,}@[A-Za-z0-9]{2,}.*?\.co.uk|[A-Za-z0-9]{4,}@[A-Za-z0-9]{2,}.*?\.com)$");
+                    var match = rg.Match(customerDetail.Email);
+                    bln = !match.Success;
                 }
 
                 if (bln)
